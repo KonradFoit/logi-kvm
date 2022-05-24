@@ -61,6 +61,9 @@ Monitors are controlled by [**VESA Monitor Control Command Set Standard**](https
 Nice tool to play around and make sure that VCP message number and values for input change are correct is [ControlMyMonitor](https://www.nirsoft.net/utils/control_my_monitor.html)
 
 ## Example config files:
+
+**IMPORTANT: JSON is sensitive for commas at the lat field of object!**
+
 **One monitor, MX keys and MX Ergo:**
 ```json
 {
