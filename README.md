@@ -13,4 +13,7 @@ Notes:
     a magic byte and has to be found by try and error.
     Display number and input name has to be found by try and error.
 
-    Default configuration is created in function populate_config
+Default configuration is created in function populate_config
+
+Usage:
+`python input_switch 0 -c config.json`
