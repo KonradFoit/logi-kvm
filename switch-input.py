@@ -201,7 +201,6 @@ def populate_devices(self_channel):
                     self_channel=self_channel)
 
     j = json.dumps(config, default=lambda o: o.encode(), indent=4)
-    print(j)
     return config
 
 
