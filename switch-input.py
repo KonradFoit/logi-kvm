@@ -75,18 +75,31 @@ class UnifyingDevice:
         self.slot_id = slot_id
         self.dev_type = dev_type
         if dev_type.lower() == 'MX Keys'.lower():
-            self.switch_detect_message = [0x11, slot_id, 0x08, 0x20, 0x00, 0xD1, 0x01]
+            # byte 0 0x11 is header
+            # byte 1 contains index of a slot on which device is paired in unifying receiver
+            # byte 2 is always 0x08
+            # byte 3 is always 0x20
+            # byte 4 is always 0x00
+            # byte 5 contains key number. For MX Keys easy switch keys are 0xD1, 0xD2, 0xD3
+            # byte 6 is key state 0x01 is pressed, 0x00 is released
+            self.switch_detect_message = [0x11, slot_id, 0x08, 0x20, 0x00, 0xFF, 0x01]
+            self.easy_switch_keys = [0xD1, 0xD2, 0xD3]
             # byte 4 (0xFF) is a placeholder for target channel number
             self.switch_message = [0x10, slot_id, 0x09, 0x1e, 0xFF, 0x00, 0x00]
             self.max_channels = 3
         elif dev_type.lower() == 'MX Ergo'.lower():
-            self.switch_detect_message = [0x11, slot_id, 0x08, 0x20, 0x00, 0xD1, 0x01]
+            # MX Ergo doesn't provide event on channel switch button
+            self.switch_detect_message = []
+            self.easy_switch_keys = []
             # byte 4 (0xFF) is a placeholder for target channel number
             self.switch_message = [0x10, slot_id, 0x15, 0x1b, 0xFF, 0x00, 0x00]
             self.max_channels = 2
         elif dev_type.lower() == 'MX Master 3'.lower():
+            # byte 6 is placeholder for key value
             # To be verified, probably wrong
-            self.switch_detect_message = [0x11, slot_id, 0x08, 0x20, 0x00, 0xD1, 0x01]
+            self.switch_detect_message = [0x11, slot_id, 0x08, 0x20, 0x00, 0xFF, 0x01]
+            # To be verified, probably wrong
+            self.easy_switch_keys = [0xD1, 0xD2, 0xD3]
             # To be verified
             # byte 2 is feature number for "CHANGE HOST". It can be checked in solaar by listing devices (solaar show)
             # byte 3 is magic number, for now, you simply have to check values until you hit correct one
@@ -104,7 +117,9 @@ class UnifyingDevice:
                 # Compare first 5 bytes (0 - 4) and byte 6. Byte 5 contains information about new channel.
                 if (input_bytes[:4] == self.switch_detect_message[:4]) and \
                         (input_bytes[6] == self.switch_detect_message[6]):
-                    target_channel = input_bytes[5] - self.switch_detect_message[5]
+                    for esk in self.easy_switch_keys:
+                        if esk == input_bytes[5]:
+                            target_channel = self.easy_switch_keys.index(esk)
             elif self.dev_type.lower() == 'MX Ergo'.lower():
                 # MX Ergo doesn't send information about switch button event
                 target_channel = -2
