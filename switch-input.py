@@ -12,7 +12,7 @@ Notes:
     a magic byte and has to be found by try and error.
     Display number and input name has to be found by try and error.
 
-    Configuration is created in function populate_devices
+    Default configuration is created in function populate_config
 """
 
 import argparse
@@ -79,7 +79,7 @@ class UnifyingDevice:
         self.max_channels = max_channels
 
     @staticmethod
-    def get_from_type(self, dev_type, slot_id):
+    def get_from_type(dev_type, slot_id):
         if dev_type.lower() == 'MX Keys'.lower():
             # byte 0 0x11 is header
             # byte 1 contains index of a slot on which device is paired in unifying receiver
@@ -206,20 +206,24 @@ def populate_devices(self_channel):
 
 
 def main_loop(self_channel, config_file):
-    config = None
     if config_file is not None:
         jconf = json.loads(config_file.read())
         unifying_channel = jconf['unifying_channel']
         unifying_devices = []
         monitors = []
         for jdev in jconf['unifying_devices']:
-            dev = UnifyingDevice(dev_type=jdev['dev_type'],
-                                 slot_id=jdev['slot_id'],
-                                 switch_detect_message=jdev['switch_detect_message'],
-                                 easy_switch_keys=jdev['easy_switch_keys'],
-                                 switch_message=jdev['switch_message'],
-                                 max_channels=jdev['max_channels']
-                                 )
+            if ('switch_detect_message' not in jdev) or \
+                    ('easy_switch_keys' not in jdev) or \
+                    ('switch_message' not in jdev) or \
+                    ('max_channels' not in jdev):
+                dev = UnifyingDevice.get_from_type(dev_type=jdev['dev_type'], slot_id=jdev['slot_id'])
+            else:
+                dev = UnifyingDevice(dev_type=jdev['dev_type'],
+                                     slot_id=jdev['slot_id'],
+                                     switch_detect_message=jdev['switch_detect_message'],
+                                     easy_switch_keys=jdev['easy_switch_keys'],
+                                     switch_message=jdev['switch_message'],
+                                     max_channels=jdev['max_channels'])
             unifying_devices.append(dev)
         for jmonitor in jconf['monitors']:
             monitor = Monitor(channel_to_monitor_id=jmonitor['channel_to_monitor_id'],
