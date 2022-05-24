@@ -1,0 +1,62 @@
+{
+    "monitors": [
+        {
+            "channel_to_monitor_id": {
+                "0": 2,
+                "1": 1
+            },
+            "vcp_message_number": 60,
+            "channel_to_input_dict": {
+                "0": "HDMI2",
+                "1": "HDMI1"
+            }
+        }
+    ],
+    "unifying_devices": [
+        {
+            "slot_id": 1,
+            "dev_type": "MX Keys",
+            "switch_detect_message": [
+                17,
+                1,
+                8,
+                32,
+                0,
+                255,
+                1
+            ],
+            "easy_switch_keys": [
+                209,
+                210,
+                211
+            ],
+            "switch_message": [
+                16,
+                1,
+                9,
+                30,
+                255,
+                0,
+                0
+            ],
+            "max_channels": 3
+        },
+        {
+            "slot_id": 2,
+            "dev_type": "MX Ergo",
+            "switch_detect_message": [],
+            "easy_switch_keys": [],
+            "switch_message": [
+                16,
+                2,
+                21,
+                27,
+                255,
+                0,
+                0
+            ],
+            "max_channels": 2
+        }
+    ],
+    "unifying_channel": 0
+}
