@@ -207,7 +207,6 @@ def populate_devices(self_channel):
 def main_loop(self_channel, config_file):
     if config_file is not None:
         jconf = json.loads(config_file.read())
-        unifying_channel = jconf['unifying_channel']
         unifying_devices = []
         monitors = []
         for jdev in jconf['unifying_devices']:
@@ -229,7 +228,7 @@ def main_loop(self_channel, config_file):
                               channel_to_input_dict=jmonitor['channel_to_input_dict'],
                               vcp_message_number=jmonitor['vcp_message_number'])
             monitors.append(monitor)
-        config = Config(monitors=monitors, unifying_devices=unifying_devices, self_channel=unifying_channel)
+        config = Config(monitors=monitors, unifying_devices=unifying_devices, self_channel=self_channel)
 
 
 
