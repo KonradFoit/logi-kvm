@@ -1,7 +1,7 @@
 # logi-kvm
 Python script to synchronize Logitech Unifying devices channel switch and monitor input change.
 
-Provides switching Logitech Unifying devices channels and VCP compliant monitors input as a reaction to Logitech Easy Switch keys events.
+Provides switching of Logitech Unifying devices channels and VCP (VESA MCCS) compliant monitors input selection as a reaction to Logitech Easy Switch keys events.
 
 Notes:
 - Unifying channels indexes starts at 0
@@ -17,13 +17,13 @@ Default configuration is created in function populate_config.
 `python input_switch 0 -c config.json`
 
 ## Adding other Unifying devices with change host capability
-Best tool to discover how to make unifying device change host is to use Solaar on linux and list all field of devices by calling:
+Best tool to discover how to make unifying device change host is to use [Solaar](https://github.com/pwr-Solaar/Solaar) on linux and list all field of devices by calling:
 
 `solaar show`
 
 Then you need to look for feature called `CHANGE HOST`.
 This number (e.g. for MX Keys it's `9` and for MX Ergo it's `21`) has to be byte number 2 in `switch_message`. Byte 3 is for my current knowledge a magic number and has to be found by trial and error.
-For detecting if device is sending any messages when easy switch key is pressed the easiest way is to use `hidapitester` to listen to the device. For MX Keys best results are for:
+For detecting if device is sending any messages when easy switch key is pressed the easiest way is to use [hidapitester](https://github.com/todbot/hidapitester) to listen to the device. For MX Keys best results are for:
 
 `hidapitester --vidpid 046D:C52B --usagePage 0xFF00 --usage 0x0002 -l 11 -t 5000 --open --read-input-forever`
 
@@ -54,6 +54,11 @@ Byte 4 (Channel) will be replaces with channel number detected by `switch_detect
 |  1  | 0xD1  |
 |  2  | 0xD2  |
 |  3  | oxD3  |
+
+## Configuring monitors:
+Monitors are controlled by [**VESA Monitor Control Command Set Standard**](https://milek7.pl/ddcbacklight/mccs.pdf).
+
+Nice tool to play around and make sure that VCP message number and values for input change are correct is [ControlMyMonitor](https://www.nirsoft.net/utils/control_my_monitor.html)
 
 ## Example config files:
 **One monitor, MX keys and MX Ergo:**
