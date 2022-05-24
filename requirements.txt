@@ -1,0 +1,2 @@
+hidapi==0.11.2
+monitorcontrol==3.0.1
