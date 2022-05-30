@@ -112,6 +112,32 @@ class UnifyingDevice:
             # byte 4 (0xFF) is a placeholder for target channel number
             switch_message = [0x10, slot_id, 0x0A, 0x11, 0xFF, 0x00, 0x00]
             max_channels = 3
+        elif dev_type.lower() == 'MX Vertical'.lower():
+            switch_message = [0x10, slot_id, 0x0C, 0x1C, 0xFF, 0x00, 0x00]
+            easy_switch_keys = []
+            switch_detect_message = []
+            max_channels = 3
+        elif dev_type.lower() == 'Ergo K860'.lower():
+            switch_message = [0x10, slot_id, 0x09, 0x1C, 0xFF, 0x00, 0x00]
+            # byte 6 is placeholder for key value
+            # To be verified, probably wrong
+            switch_detect_message = [0x11, slot_id, 0x08, 0x20, 0x00, 0xFF, 0x01]
+            # To be verified, probably wrong
+            easy_switch_keys = [0xD1, 0xD2, 0xD3]
+            max_channels = 3
+        elif dev_type.lower() == 'MK850'.lower():
+            switch_message = [0x10, slot_id, 0x08, 0x11, 0xFF, 0x00, 0x00]
+            # byte 6 is placeholder for key value
+            # To be verified, probably wrong
+            switch_detect_message = [0x11, slot_id, 0x08, 0x20, 0x00, 0xFF, 0x01]
+            # To be verified, probably wrong
+            easy_switch_keys = [0xD1, 0xD2, 0xD3]
+            max_channels = 3
+        elif dev_type.lower() == 'M720'.lower():
+            switch_message = [0x10, slot_id, 0x09, 0x11, 0xFF, 0x00, 0x00]
+            easy_switch_keys = []
+            switch_detect_message = []
+            max_channels = 3
         else:
             raise ValueError("Invalid Unifying device type")
         return UnifyingDevice(dev_type, slot_id, switch_detect_message, easy_switch_keys, switch_message, max_channels)
@@ -135,10 +161,13 @@ class UnifyingDevice:
         return target_channel
 
     def switch_channel(self, channel_number):
-        self.switch_message[4] = channel_number
-        logging.debug("Switching Unifying device \'%s\' at slot %d to channel %d" % (self.dev_type, self.slot_id,
-                                                                                     channel_number))
-        unifying_write(self.switch_message)
+        if channel_number < self.max_channels:
+            self.switch_message[4] = channel_number
+            logging.debug("Switching Unifying device \'%s\' at slot %d to channel %d" % (self.dev_type, self.slot_id,
+                                                                                         channel_number))
+            unifying_write(self.switch_message)
+        else:
+            logging.warning("Device \'%s\' does not support more than %d channels" % (self.dev_type, self.max_channels))
 
     def encode(self):
         return self.__dict__
@@ -153,15 +182,18 @@ class Monitor:
     def switch_input(self, channel_number, self_channel):
         monitor = monitorcontrol.get_monitors()[self.channel_to_monitor_id[str(self_channel)]]
         with monitor:
-            old_input = "InputSource." + str(monitor.get_input_source())
-            if old_input != self.channel_to_input_dict[str(channel_number)]:
-                logging.debug("Switch monitor %d from input %s to input %s" % (self.channel_to_monitor_id[str(self_channel)],
-                                                                               old_input,
-                                                                               self.channel_to_input_dict[str(channel_number)]))
-                monitor.set_input_source(self.channel_to_input_dict[str(channel_number)])
+            if channel_number < len(self.channel_to_input_dict) and channel_number < len(self.channel_to_monitor_id):
+                old_input = "InputSource." + str(monitor.get_input_source())
+                if old_input != self.channel_to_input_dict[str(channel_number)]:
+                    logging.debug("Switch monitor %d from input %s to input %s" % (self.channel_to_monitor_id[str(self_channel)],
+                                                                                   old_input,
+                                                                                   self.channel_to_input_dict[str(channel_number)]))
+                    monitor.set_input_source(self.channel_to_input_dict[str(channel_number)])
+                else:
+                    logging.debug("Monitor % is already set to input %d" % (self.channel_to_monitor_id[str(self_channel)],
+                                                                            self.channel_to_input_dict[str(channel_number)]))
             else:
-                logging.debug("Monitor % is already set to input %d" % (self.channel_to_monitor_id[str(self_channel)],
-                                                                        self.channel_to_input_dict[str(channel_number)]))
+                logging.warning("Monitor is not configured for %d channels" % (channel_number + 1))
 
     def encode(self):
         return self.__dict__
