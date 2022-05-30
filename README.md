@@ -8,6 +8,9 @@ Notes:
 - Unifying receiver slots indexes starts at 1
 - Display number and input name has to be found by try and error.
 
+** Works on Windows 10
+Unfortunately hidapi is not working properly on Linux yet**
+
 Any Unifying Hardware should be compatible. In order to add other Unifying devices support please read this whole readme file.
 
 Default configuration is created in function populate_config.
